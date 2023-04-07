@@ -1,5 +1,17 @@
 #include "knight2.h"
 
+bool isPrime(const int num){
+  if (num <=1) return false;
+  for(int i =2; i*i <=num;i++){
+    if(num%i==0) return false;
+  }
+  return true;
+}
+
+bool PythagoreTri(const int a, const int b, const int c){
+  return (a*a + b*b == c*c || c*c + b*b == a*a || a*a + c*c == b*b);
+}
+
 //   _____                      _        
 //  |  ___|                    | |       
 //  | |__  __   __  ___  _ __  | |_  ___ 
@@ -72,6 +84,7 @@ string BaseKnight::toString() const {
 //  \_| |_/|_|   |_| |_| |_| \__, |\_| \_/|_| |_||_| \__, ||_| |_||___/
 //                            __/ |                   __/ |            
 //                           |___/                   |___/             
+
 // void ArmyKnights::printInfo() const {
 //     cout << "No. knights: " << this->count();
 //     if (this->count() > 0) {
@@ -99,16 +112,16 @@ string BaseKnight::toString() const {
 //  |_|   \_)|_| |_||_| \___ ||_| |_|  \__)  |_|   |_| \____|  \_/  |_____)|_| |_|  \__)|____/ |_|    |_____)
 //                     (_____|                                                                               
 KnightAdventure::KnightAdventure() {
-    armyKnights = nullptr;
-    events = nullptr;
+    this->armyKnights = nullptr;
+    this->events = nullptr;
 }
 
 void KnightAdventure::loadEvents(const string &file_events){
-  events = new Events(file_events);
+  this->events = new Events(file_events);
 }
 
 void KnightAdventure::run(){
-  // DEBUg
+  // DEBUG
   cout <<"So event la " << this->events->count();
   for(int i =0; i < events->count();i++){
     cout << events->get(i) << " ";
