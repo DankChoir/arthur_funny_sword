@@ -21,6 +21,7 @@ public:
 class BaseOpponent;
 
 enum KnightType { PALADIN = 0, LANCELOT, DRAGON, NORMAL };
+
 class BaseKnight {
 protected:
     int id;
@@ -28,17 +29,57 @@ protected:
     int maxhp;
     int level;
     int gil;
+    
+    // DEBUG
+    int phoenixdownI;
     int antidote;
+    // DEBUG
+
     BaseBag * bag;
     KnightType knightType;
 
 public:
-    static BaseKnight * create(int id, int maxhp, int level, int gil, int antidote, int phoenixdownI);
+    BaseKnight(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote) : id(id), maxhp(maxhp), level(level),phoenixdownI(phoenixdownI) ,gil(gil), bag(nullptr), antidote(antidote) {};
+    static BaseKnight * create(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote);
     string toString() const;
+};
+
+class PaladinKnight: public BaseKnight {
+  public:
+    PaladinKnight(int id,int maxhp, int level,int phoenixdownI,int gil,int antidote):BaseKnight(id, maxhp,level,phoenixdownI,gil, antidote){
+      this->hp = maxhp;
+      this->knightType = KnightType::PALADIN;
+    }
+};
+
+class LancelotKnight: public BaseKnight {
+  public:
+    LancelotKnight(int id,int maxhp, int level,int phoenixdownI,int gil,int antidote):BaseKnight(id, maxhp,level,phoenixdownI,gil, antidote){
+      this->hp = maxhp;
+      this->knightType = KnightType::LANCELOT;
+    }
+};
+
+class DragonKnight: public BaseKnight {
+  public:
+    DragonKnight(int id,int maxhp, int level,int phoenixdownI,int gil,int antidote):BaseKnight(id, maxhp,level,phoenixdownI, gil, antidote){
+      this->hp = maxhp;
+      this->knightType = KnightType::DRAGON;
+    }
+};
+
+class NormalKnight: public BaseKnight {
+  public:
+    NormalKnight(int id,int maxhp, int level,int phoenixdownI,int gil,int antidote):BaseKnight(id, maxhp,level,phoenixdownI, gil, antidote){
+      this->hp = maxhp;
+      this->knightType = KnightType::NORMAL;
+    }
 };
 
 class ArmyKnights {
 public:
+    int numKnights;
+    BaseKnight** army;
     ArmyKnights (const string & file_armyknights);
     ~ArmyKnights();
     bool fight(BaseOpponent * opponent);

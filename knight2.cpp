@@ -1,4 +1,6 @@
 #include "knight2.h"
+#include <algorithm>
+#include <fstream>
 
 bool isPrime(const int num){
   if (num <=1) return false;
@@ -9,6 +11,7 @@ bool isPrime(const int num){
 }
 
 bool PythagoreTri(const int a, const int b, const int c){
+  if(a==0) return false;
   return (a*a + b*b == c*c || c*c + b*b == a*a || a*a + c*c == b*b);
 }
 
@@ -60,6 +63,32 @@ Events::~Events(){
 //                                              __/ |            
 //    
 
+BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, int gil, int antidote){
+  KnightType type;
+  if(isPrime(maxhp)) type = PALADIN;
+  else if(maxhp == 888) type = LANCELOT;
+  else if(PythagoreTri(maxhp/100,(maxhp/10)%10 , maxhp%10)) type = DRAGON;
+  else type = NORMAL;
+
+  BaseKnight* knight = nullptr;
+    switch (type) {
+    case PALADIN:
+      knight = new PaladinKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+      break;
+    case LANCELOT:
+      knight = new LancelotKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+      break;
+    case DRAGON:
+      knight = new DragonKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+      break;
+    case NORMAL:
+      knight = new NormalKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+      break;
+    }
+  knight->knightType = type;
+  return knight;
+}
+
 string BaseKnight::toString() const {
     string typeString[4] = {"PALADIN", "LANCELOT", "DRAGON", "NORMAL"};
     // inefficient version, students can change these code
@@ -70,7 +99,7 @@ string BaseKnight::toString() const {
         + ",maxhp:" + to_string(maxhp)
         + ",level:" + to_string(level)
         + ",gil:" + to_string(gil)
-        + "," + bag->toString()
+        + "," + "no bag yet sorry" /* bag->toString() */
         + ",knight_type:" + typeString[knightType]
         + "]";
     return s;
@@ -84,6 +113,26 @@ string BaseKnight::toString() const {
 //  \_| |_/|_|   |_| |_| |_| \__, |\_| \_/|_| |_||_| \__, ||_| |_||___/
 //                            __/ |                   __/ |            
 //                           |___/                   |___/             
+
+ArmyKnights::ArmyKnights(const string& file_armyknights){
+  ifstream army_file(file_armyknights);
+  army_file >> this->numKnights;
+  this->army = new BaseKnight*[numKnights];
+  int maxhp,level,phoenixdownI,gil,antidote;
+  for(int id =1; id <=numKnights;id++){
+    army_file >> maxhp >> level >> phoenixdownI >> gil >> antidote;
+    BaseKnight* knight = BaseKnight::create(id, maxhp, level, phoenixdownI, gil, antidote);
+    army[id-1] = knight;
+  }
+  army_file.close();
+}
+
+ArmyKnights::~ArmyKnights(){
+  for(int i =0; i < numKnights;i++){
+    delete this->army[i];
+  }
+  delete[] this->army;
+}
 
 // void ArmyKnights::printInfo() const {
 //     cout << "No. knights: " << this->count();
@@ -120,17 +169,25 @@ void KnightAdventure::loadEvents(const string &file_events){
   this->events = new Events(file_events);
 }
 
+void KnightAdventure::loadArmyKnights(const string &file_armyknights){
+  this-> armyKnights = new ArmyKnights(file_armyknights);
+}
+
 void KnightAdventure::run(){
   // DEBUG
   cout <<"So event la " << this->events->count();
   for(int i =0; i < events->count();i++){
-    cout << events->get(i) << " ";
+    cout << events->get(i) << " " ;
+  }
+  cout << endl;
+  for(int i =0; i < armyKnights->numKnights;i++){
+    cout << armyKnights->army[i]->toString() << endl;
   }
   // DEBUG
 }
 
 KnightAdventure::~KnightAdventure() {
-    // delete armyKnights;
+    delete armyKnights;
     delete events;
 }
 
