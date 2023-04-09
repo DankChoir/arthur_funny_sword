@@ -77,9 +77,15 @@ class NormalKnight: public BaseKnight {
 };
 
 class ArmyKnights {
+private:
+  int numKnights;
+  BaseKnight** army;
+  bool PalandinShield = false;
+  bool LancelotSpear = false;
+  bool GuinevereHair = false;
+  bool ExcaliburSword = false;
+
 public:
-    int numKnights;
-    BaseKnight** army;
     ArmyKnights (const string & file_armyknights);
     ~ArmyKnights();
     bool fight(BaseOpponent * opponent);
@@ -87,10 +93,11 @@ public:
     int count() const;
     BaseKnight * lastKnight() const;
 
-    // bool hasPaladinShield() const;
-    // bool hasLancelotSpear() const;
-    // bool hasGuinevereHair() const;
-    // bool hasExcaliburSword() const;
+    void dev_printAll() const;
+    bool hasPaladinShield() const;
+    bool hasLancelotSpear() const;
+    bool hasGuinevereHair() const;
+    bool hasExcaliburSword() const;
 
     void printInfo() const;
     void printResult(bool win) const;

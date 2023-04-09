@@ -127,11 +127,22 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
   army_file.close();
 }
 
+int ArmyKnights::count()const{
+  return this->numKnights;
+}
+
 ArmyKnights::~ArmyKnights(){
   for(int i =0; i < numKnights;i++){
     delete this->army[i];
   }
   delete[] this->army;
+}
+
+//IN DEV
+void ArmyKnights::dev_printAll() const {
+  for(int i =0; i < this->numKnights;i++){
+    cout << this->army[i]->toString() << endl;
+  }
 }
 
 // void ArmyKnights::printInfo() const {
@@ -180,9 +191,7 @@ void KnightAdventure::run(){
     cout << events->get(i) << " " ;
   }
   cout << endl;
-  for(int i =0; i < armyKnights->numKnights;i++){
-    cout << armyKnights->army[i]->toString() << endl;
-  }
+  this->armyKnights->dev_printAll();
   // DEBUG
 }
 
