@@ -99,7 +99,7 @@ string BaseKnight::toString() const {
         + ",maxhp:" + to_string(maxhp)
         + ",level:" + to_string(level)
         + ",gil:" + to_string(gil)
-        + "," + "no bag yet sorry" /* bag->toString() */
+        + "," + "no bag yet sorry " /* bag->toString() */
         + ",knight_type:" + typeString[knightType]
         + "]";
     return s;
@@ -131,6 +131,17 @@ int ArmyKnights::count()const{
   return this->numKnights;
 }
 
+bool ArmyKnights::hasPaladinShield() const {return(this->PalandinShield);}
+bool ArmyKnights::hasLancelotSpear() const {return(this->LancelotSpear);}
+bool ArmyKnights::hasGuinevereHair() const {return(this->GuinevereHair);}
+bool ArmyKnights::hasExcaliburSword() const {return(this->ExcaliburSword);}
+
+BaseKnight* ArmyKnights::lastKnight() const {
+  if (this->count()==0) return nullptr;
+  BaseKnight* knight_cuoi = this->army[this->count()-1];
+  return knight_cuoi;
+}
+
 ArmyKnights::~ArmyKnights(){
   for(int i =0; i < numKnights;i++){
     delete this->army[i];
@@ -145,19 +156,49 @@ void ArmyKnights::dev_printAll() const {
   }
 }
 
-// void ArmyKnights::printInfo() const {
-//     cout << "No. knights: " << this->count();
-//     if (this->count() > 0) {
-//         BaseKnight * lknight = lastKnight(); // last knight
-//         cout << ";" << lknight->toString();
-//     }
-//     cout << ";PaladinShield:" << this->hasPaladinShield()
-//         << ";LancelotSpear:" << this->hasLancelotSpear()
-//         << ";GuinevereHair:" << this->hasGuinevereHair()
-//         << ";ExcaliburSword:" << this->hasExcaliburSword()
-//         << endl
-//         << string(50, '-') << endl;
-// }
+void ArmyKnights::printInfo() const {
+    cout << "No. knights: " << this->count();
+    if (this->count() > 0) {
+        BaseKnight * lknight = lastKnight(); // last knight
+        cout << ";" << lknight->toString();
+    }
+    cout << ";PaladinShield:" << this->hasPaladinShield()
+        << ";LancelotSpear:" << this->hasLancelotSpear()
+        << ";GuinevereHair:" << this->hasGuinevereHair()
+        << ";ExcaliburSword:" << this->hasExcaliburSword()
+        << endl
+        << string(50, '-') << endl;
+}
+
+bool ArmyKnights::adventure(Events *event) {
+  for(int i =0; i < event->count();i++){
+    int ma_su_kien = event->get(i);
+    switch (ma_su_kien) {
+      case PickedUpPaladinsShield:{
+        this->PalandinShield = true;
+        break;
+      }
+
+      case PickedUpLancelotsSpear:{
+        this->LancelotSpear = true;
+        break;
+      }
+
+      case PickedUpGuineveresHair:{
+        this->GuinevereHair = true;
+        break;
+      }
+
+      case MeetExcaliburSword: {
+        if(this->PalandinShield && this->LancelotSpear && this->GuinevereHair)
+          this->ExcaliburSword = true;
+        break;
+      }
+    }
+  }
+  return false;
+}
+
 //
 // void ArmyKnights::printResult(bool win) const {
 //     cout << (win ? "WIN" : "LOSE") << endl;
@@ -186,12 +227,17 @@ void KnightAdventure::loadArmyKnights(const string &file_armyknights){
 
 void KnightAdventure::run(){
   // DEBUG
+  cout << "----DEBUG----";
   cout <<"So event la " << this->events->count();
   for(int i =0; i < events->count();i++){
     cout << events->get(i) << " " ;
   }
   cout << endl;
   this->armyKnights->dev_printAll();
+  cout << endl;
+  this->armyKnights->printInfo();
+
+  armyKnights->adventure(events);
   // DEBUG
 }
 
