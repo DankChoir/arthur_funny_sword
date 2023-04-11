@@ -53,6 +53,61 @@ Events::~Events(){
 //  \____/  \__,_||___/ \___|\____/  \__,_| \__, |
 //                                           __/ |
 
+//  _____ _                     
+// |_   _| |                    
+//   | | | |_ ___ _ __ ___  ___ 
+//   | | | __/ _ \ '_ ` _ \/ __|
+//  _| |_| ||  __/ | | | | \__ \
+//  \___/ \__\___|_| |_| |_|___/
+
+bool phoenixdownI::canUse(BaseKnight *knight){
+  if(knight->getHP() <=0) return true;
+  return false;
+}
+
+void phoenixdownI::use(BaseKnight *knight){
+  knight->healthRestore(knight->getMaxHP());
+}
+
+bool phoenixdownII::canUse(BaseKnight *knight){
+  if(knight->getHP() < int(knight->getMaxHP()/4)) return true;
+  return false;
+}
+
+void phoenixdownII::use(BaseKnight *knight){
+  knight->healthRestore(knight->getMaxHP());
+}
+
+bool phoenixdownIII::canUse(BaseKnight *knight){
+  if(knight->getHP() < int(knight->getMaxHP()/3)) return true;
+  return false;
+}
+
+void phoenixdownIII::use(BaseKnight *knight){
+  if(knight->getHP() <=0) knight->healthRestore(int(knight->getMaxHP()/3));
+  else
+    knight->heal(int(knight->getMaxHP()/4));
+}
+
+bool phoenixdownIV::canUse(BaseKnight *knight){
+  if(knight->getHP()< int(knight->getMaxHP()/2)) return true;
+  return false;
+}
+
+void phoenixdownIV::use(BaseKnight *knight){
+  if(knight->getHP()<=0) knight->healthRestore(int(knight->getMaxHP()/2));
+  else
+    knight->heal(int(knight->getMaxHP()/5));
+}
+
+bool Antidote::canUse(BaseKnight *knight){
+  if(knight->poisioned()) return true;
+  return false;
+}
+
+void Antidote::use(BaseKnight *knight){
+  knight->cleanse();
+}
 
 //  ______                    _   __        _         _      _   
 //  | ___ \                  | | / /       (_)       | |    | |  
@@ -62,6 +117,25 @@ Events::~Events(){
 //  \____/  \__,_||___/ \___|\_| \_/|_| |_||_| \__, ||_| |_| \__|
 //                                              __/ |            
 //    
+
+int BaseKnight::getHP() const {return this->hp;}
+int BaseKnight::getMaxHP() const {return this->maxhp;}
+bool BaseKnight::poisioned() const {return this->got_poisioned;}
+
+void BaseKnight::cleanse() {this->got_poisioned=false;}
+
+void BaseKnight::healthRestore(const int amount){
+  this->hp = amount;
+}
+
+void BaseKnight::heal(const int amount){
+  this->hp += amount;
+  this->hp = min(hp,maxhp);
+}
+
+void BaseKnight::takeDamage(const int damage){
+  this->hp -= damage;
+}
 
 BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, int gil, int antidote){
   KnightType type;
@@ -151,6 +225,15 @@ ArmyKnights::~ArmyKnights(){
 
 //IN DEV
 void ArmyKnights::dev_printAll() const {
+  // TEST ITEM
+  phoenixdownIV tear;
+  army[0]->takeDamage(200);
+  cout << army[0]->getHP();
+  cout << "Dung tear cho thang dau dc ko: " << tear.canUse(army[0]) << endl;
+  if(tear.canUse(army[0])) tear.use(army[0]);
+  cout << "Mau sau khi dung la: " << army[0]->getHP() << endl;
+  
+  //TEST ARMY
   for(int i =0; i < this->numKnights;i++){
     cout << this->army[i]->toString() << endl;
   }
@@ -238,6 +321,8 @@ void KnightAdventure::run(){
   this->armyKnights->printInfo();
 
   armyKnights->adventure(events);
+
+  cout << endl << endl;
   // DEBUG
 }
 
