@@ -1,6 +1,4 @@
 #include "knight2.h"
-#include <algorithm>
-#include <fstream>
 
 bool isPrime(const int num){
   if (num <=1) return false;
@@ -53,6 +51,52 @@ Events::~Events(){
 //  \____/  \__,_||___/ \___|\____/  \__,_| \__, |
 //                                           __/ |
 
+void BaseBag::topAppend(BaseItem *item){
+  if(this->head == nullptr) {head = item;}
+  else{
+      item->next = this->head;
+      this->head = item;
+    }
+  }
+
+BaseBag::BaseBag(const int phoenixdownI,const int antidote){
+  this->head = nullptr;
+  this->count += phoenixdownI + antidote;
+  this->limit = 0; 
+
+  for(int a = 0; a <phoenixdownI; a++){
+    PhoenixdownI* tear_1 = new PhoenixdownI();
+    this->topAppend(tear_1);
+  }
+
+  for(int b = 0; b <antidote; b++){
+    Antidote* anti = new Antidote();
+    this->topAppend(anti);
+  }
+}
+
+string BaseBag::toString() const{
+  string bag_info = "";
+  bag_info += "Bag[count=" + to_string(this->count);
+  BaseItem* current = head;
+  while(current != nullptr){
+    if (current->itemType == ItemType::ANTIDOTE) bag_info += ";Antidote";
+    else if (current->itemType == ItemType::TEAR_I) bag_info += ";PhoenixI";
+    else if (current->itemType == ItemType::TEAR_II) bag_info += ";PhoenixII";
+    else
+    bag_info += ";PhoenixdownIV";
+    current = current->next;
+  }
+  bag_info += "]";
+  return bag_info;
+}
+
+// PALADIN BAG
+
+
+// bool PaladinBag::insertFirst(BaseItem *item) {return true;}
+
+
 //  _____ _                     
 // |_   _| |                    
 //   | | | |_ ___ _ __ ___  ___ 
@@ -60,41 +104,41 @@ Events::~Events(){
 //  _| |_| ||  __/ | | | | \__ \
 //  \___/ \__\___|_| |_| |_|___/
 
-bool phoenixdownI::canUse(BaseKnight *knight){
+bool PhoenixdownI::canUse(BaseKnight *knight){
   if(knight->getHP() <=0) return true;
   return false;
 }
 
-void phoenixdownI::use(BaseKnight *knight){
+void PhoenixdownI::use(BaseKnight *knight){
   knight->healthRestore(knight->getMaxHP());
 }
 
-bool phoenixdownII::canUse(BaseKnight *knight){
+bool PhoenixdownII::canUse(BaseKnight *knight){
   if(knight->getHP() < int(knight->getMaxHP()/4)) return true;
   return false;
 }
 
-void phoenixdownII::use(BaseKnight *knight){
+void PhoenixdownII::use(BaseKnight *knight){
   knight->healthRestore(knight->getMaxHP());
 }
 
-bool phoenixdownIII::canUse(BaseKnight *knight){
+bool PhoenixdownIII::canUse(BaseKnight *knight){
   if(knight->getHP() < int(knight->getMaxHP()/3)) return true;
   return false;
 }
 
-void phoenixdownIII::use(BaseKnight *knight){
+void PhoenixdownIII::use(BaseKnight *knight){
   if(knight->getHP() <=0) knight->healthRestore(int(knight->getMaxHP()/3));
   else
     knight->heal(int(knight->getMaxHP()/4));
 }
 
-bool phoenixdownIV::canUse(BaseKnight *knight){
+bool PhoenixdownIV::canUse(BaseKnight *knight){
   if(knight->getHP()< int(knight->getMaxHP()/2)) return true;
   return false;
 }
 
-void phoenixdownIV::use(BaseKnight *knight){
+void PhoenixdownIV::use(BaseKnight *knight){
   if(knight->getHP()<=0) knight->healthRestore(int(knight->getMaxHP()/2));
   else
     knight->heal(int(knight->getMaxHP()/5));
@@ -148,6 +192,13 @@ BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, i
     switch (type) {
     case PALADIN:
       knight = new PaladinKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+
+      // DEBUG
+      knight->bag = nullptr;
+      knight->bag = new PaladinBag(phoenixdownI,antidote);
+      cout << "---------  " ;
+      cout << knight->bag->toString();
+      cout << "  ---------" << endl;
       break;
     case LANCELOT:
       knight = new LancelotKnight(id, maxhp, level, phoenixdownI, gil, antidote);
@@ -226,9 +277,10 @@ ArmyKnights::~ArmyKnights(){
 //IN DEV
 void ArmyKnights::dev_printAll() const {
   // TEST ITEM
-  phoenixdownIV tear;
+  PhoenixdownIV tear;
+  cout << "Loai item: " << tear.itemType << "; ";
   army[0]->takeDamage(200);
-  cout << army[0]->getHP();
+  cout << "HP sau khi danh " << army[0]->getHP();
   cout << "Dung tear cho thang dau dc ko: " << tear.canUse(army[0]) << endl;
   if(tear.canUse(army[0])) tear.use(army[0]);
   cout << "Mau sau khi dung la: " << army[0]->getHP() << endl;
@@ -310,8 +362,8 @@ void KnightAdventure::loadArmyKnights(const string &file_armyknights){
 
 void KnightAdventure::run(){
   // DEBUG
-  cout << "----DEBUG----";
-  cout <<"So event la " << this->events->count();
+  cout << "----DEBUG----" << endl;
+  cout <<"So event la " << this->events->count() << " << ";
   for(int i =0; i < events->count();i++){
     cout << events->get(i) << " " ;
   }

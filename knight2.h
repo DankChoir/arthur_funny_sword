@@ -2,6 +2,7 @@
 #define __KNIGHT2_H__
 
 #include "main.h"
+#include <bits/types/cookie_io_functions_t.h>
 
 // #define DEBUG
 
@@ -35,13 +36,8 @@ enum KnightType { PALADIN = 0, LANCELOT, DRAGON, NORMAL };
 class BaseItem;
 class Events;
 class BaseOpponent;
+class BaseBag;
 
-class BaseBag {
-public:
-    virtual bool insertFirst(BaseItem * item);
-    virtual BaseItem * get(ItemType itemType);
-    virtual string toString() const;
-};
 
  // _   __      _       _     _   
 // | | / /     (_)     | |   | |  
@@ -156,44 +152,77 @@ public:
 
 class BaseItem {
 public:
+    ItemType itemType;
+    BaseItem* next;
+    BaseItem() {next=nullptr;}
     virtual bool canUse ( BaseKnight * knight ) = 0;
     virtual void use ( BaseKnight * knight ) = 0;
 };
 
 class Antidote: public BaseItem {
   public:
-    ItemType itemType = ItemType::ANTIDOTE;
+    Antidote(){ itemType = ItemType::ANTIDOTE;}
     bool canUse(BaseKnight* knight) override;
     void use(BaseKnight* knight) override;
 };
 
-class phoenixdownI : public BaseItem {
+class PhoenixdownI : public BaseItem {
   public:
-    ItemType itemType = ItemType::TEAR_I;
+    PhoenixdownI(){ itemType = ItemType::TEAR_I;}
     bool canUse(BaseKnight* knight) override;
     void use(BaseKnight* knight) override;
 };
 
-class phoenixdownII : public BaseItem {
+class PhoenixdownII : public BaseItem {
   public:
-    ItemType itemType = ItemType::TEAR_II;
+    PhoenixdownII(){ itemType = ItemType::TEAR_II;}
     bool canUse(BaseKnight* knight) override;
     void use(BaseKnight* knight) override;
 };
 
-class phoenixdownIII : public BaseItem {
+class PhoenixdownIII : public BaseItem {
   public:
-    ItemType itemType = ItemType::TEAR_III;
+    PhoenixdownIII(){ itemType = ItemType::TEAR_III;}
     bool canUse(BaseKnight* knight) override;
     void use(BaseKnight* knight) override;
 };
 
-class phoenixdownIV : public BaseItem {
+class PhoenixdownIV : public BaseItem {
   public:
-    ItemType itemType = ItemType::TEAR_IV;
+    PhoenixdownIV(){ itemType = ItemType::TEAR_IV;}
     bool canUse(BaseKnight* knight) override;
     void use(BaseKnight* knight) override;
 };
+
+//  ______   ___   _____ 
+//  | ___ \ / _ \ |  __ \
+//  | |_/ // /_\ \| |  \/
+//  | ___ \|  _  || | __ 
+//  | |_/ /| | | || |_\ \
+//  \____/ \_| |_/ \____/
+//                       
+
+class BaseBag {
+  protected:
+    int count=0;
+    int limit;
+  public:
+    BaseBag(const int phoenixdownI, const int antidote);
+    BaseItem* head;
+    void topAppend(BaseItem* item);
+    // virtual void initiate(int phoenixdownI, int antidote);
+    // virtual bool insertFirst(BaseItem * item);
+    // virtual BaseItem * get(ItemType itemType);
+    virtual string toString() const;
+};
+
+class PaladinBag : public BaseBag{
+  public:
+    PaladinBag(const int phoenixdownI, const int antidote):BaseBag(phoenixdownI,antidote ){}
+    // bool insertFirst(BaseItem *item) override;
+};
+
+
 //  _____                _       
 // |  ___|              | |      
 // | |____   _____ _ __ | |_ ___ 
