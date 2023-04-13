@@ -62,10 +62,11 @@ protected:
     // DEBUG
     
     bool got_poisioned = false;
-    BaseBag * bag;
+    BaseKnight* prev = nullptr;
     KnightType knightType;
 
 public:
+    BaseBag * bag;
     BaseKnight(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote) : 
     id(id), maxhp(maxhp), level(level),phoenixdownI(phoenixdownI) ,gil(gil), bag(nullptr), antidote(antidote) {};
 
@@ -80,6 +81,10 @@ public:
     void healthRestore(const int amount);
     void heal(const int amount);
     void takeDamage(const int damage);
+    void setPrev(BaseKnight* knight);
+    KnightType getType() const;
+
+    BaseKnight* previous() const;
 };
 
 class PaladinKnight: public BaseKnight {
@@ -118,6 +123,7 @@ class ArmyKnights {
 private:
   int numKnights;
   BaseKnight** army;
+  BaseKnight* lastknight= nullptr;
 
   bool PalandinShield = false;
   bool LancelotSpear = false;
@@ -207,21 +213,32 @@ class BaseBag {
     int count=0;
     int limit;
   public:
-    BaseBag(const int phoenixdownI, const int antidote);
+    BaseBag(const int phoenixdownI, const int antidote, const int limit);
     BaseItem* head;
     void topAppend(BaseItem* item);
-    // virtual void initiate(int phoenixdownI, int antidote);
-    // virtual bool insertFirst(BaseItem * item);
+    virtual bool insertFirst(BaseItem * item);
     // virtual BaseItem * get(ItemType itemType);
     virtual string toString() const;
 };
 
 class PaladinBag : public BaseBag{
   public:
-    PaladinBag(const int phoenixdownI, const int antidote):BaseBag(phoenixdownI,antidote ){}
-    // bool insertFirst(BaseItem *item) override;
+    // PaladinBag(const int phoenixdownI, const int antidote, const int limit):BaseBag(phoenixdownI,antidote ,limit){}
+    using BaseBag::BaseBag;
+    bool insertFirst(BaseItem *item) override;
 };
 
+class LancelotBag : public BaseBag{
+  public:
+    // LancelotBag(const int phoenixdownI, const int antidote, const int limit):BaseBag(phoenixdownI, antidote, limit){}
+    using BaseBag::BaseBag;
+};
+
+class NormalBag : public BaseBag{
+  public:
+    // LancelotBag(const int phoenixdownI, const int antidote, const int limit):BaseBag(phoenixdownI, antidote, limit){}
+    using BaseBag::BaseBag;
+};
 
 //  _____                _       
 // |  ___|              | |      

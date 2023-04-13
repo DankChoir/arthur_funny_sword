@@ -59,23 +59,29 @@ void BaseBag::topAppend(BaseItem *item){
     }
   }
 
-BaseBag::BaseBag(const int phoenixdownI,const int antidote){
+BaseBag::BaseBag(const int phoenixdownI,const int antidote, const int limit){
   this->head = nullptr;
   this->count += phoenixdownI + antidote;
-  this->limit = 0; 
+  this->limit = limit; 
 
   for(int a = 0; a <phoenixdownI; a++){
-    PhoenixdownI* tear_1 = new PhoenixdownI();
+    PhoenixdownI* tear_1 = new PhoenixdownI;
     this->topAppend(tear_1);
   }
 
   for(int b = 0; b <antidote; b++){
-    Antidote* anti = new Antidote();
+    Antidote* anti = new Antidote;
     this->topAppend(anti);
   }
 }
 
+bool BaseBag::insertFirst(BaseItem *item){
+  if(this->count == this->limit) return false;
+  return false;
+}
+
 string BaseBag::toString() const{
+  cout << "Gioi han: " << this->limit << "   "; //DEBUG
   string bag_info = "";
   bag_info += "Bag[count=" + to_string(this->count);
   BaseItem* current = head;
@@ -92,10 +98,7 @@ string BaseBag::toString() const{
 }
 
 // PALADIN BAG
-
-
-// bool PaladinBag::insertFirst(BaseItem *item) {return true;}
-
+bool PaladinBag::insertFirst(BaseItem *item) {return true;}
 
 //  _____ _                     
 // |_   _| |                    
@@ -181,6 +184,18 @@ void BaseKnight::takeDamage(const int damage){
   this->hp -= damage;
 }
 
+void BaseKnight::setPrev(BaseKnight *knight){
+  this->prev = knight;
+}
+
+BaseKnight* BaseKnight::previous() const{
+  return this->prev; 
+}
+
+KnightType BaseKnight::getType() const {
+  return this->knightType;
+}
+
 BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, int gil, int antidote){
   KnightType type;
   if(isPrime(maxhp)) type = PALADIN;
@@ -195,19 +210,30 @@ BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, i
 
       // DEBUG
       knight->bag = nullptr;
-      knight->bag = new PaladinBag(phoenixdownI,antidote);
-      cout << "---------  " ;
+      knight->bag = new PaladinBag(phoenixdownI,antidote,0);
+      cout << "[PALADIN]---------  " ;
       cout << knight->bag->toString();
       cout << "  ---------" << endl;
       break;
     case LANCELOT:
       knight = new LancelotKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+
+      knight->bag = nullptr;
+      knight->bag = new LancelotBag(phoenixdownI,antidote,16);
+      cout << "[LANCELOT]---------  " ;
+      cout << knight->bag->toString();
+      cout << "  ---------" << endl;
       break;
     case DRAGON:
       knight = new DragonKnight(id, maxhp, level, phoenixdownI, gil, antidote);
       break;
     case NORMAL:
       knight = new NormalKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+      knight->bag = nullptr;
+      knight->bag = new NormalBag(phoenixdownI,antidote,19);
+      cout << "[NORMAL]---------  " ;
+      cout << knight->bag->toString();
+      cout << "  ---------" << endl;
       break;
     }
   knight->knightType = type;
@@ -248,7 +274,22 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
     army_file >> maxhp >> level >> phoenixdownI >> gil >> antidote;
     BaseKnight* knight = BaseKnight::create(id, maxhp, level, phoenixdownI, gil, antidote);
     army[id-1] = knight;
+
+    if(id == 1) lastknight = knight;
+    else{
+      knight->setPrev(lastknight);
+      lastknight = knight;
+    }
   }
+
+  //INDEV
+  
+  BaseKnight* lmao = lastKnight();
+  while(lmao != nullptr){
+    cout << lmao->toString() << endl;
+    lmao = lmao->previous();
+  }
+
   army_file.close();
 }
 
