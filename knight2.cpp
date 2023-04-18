@@ -1,5 +1,6 @@
 #include "knight2.h"
 
+// FUNCTION Programming ROCKS!!
 bool isPrime(const int num){
   if (num <=1) return false;
   for(int i =2; i*i <=num;i++){
@@ -11,6 +12,22 @@ bool isPrime(const int num){
 bool PythagoreTri(const int a, const int b, const int c){
   if(a==0) return false;
   return (a*a + b*b == c*c || c*c + b*b == a*a || a*a + c*c == b*b);
+}
+
+void transferGil(BaseKnight* knight,int gil_obtained){
+  BaseKnight* current = knight;
+  while(current!=nullptr && gil_obtained >0){
+    int til_full = 999 - current->getGil();
+    if(gil_obtained > til_full){
+      current->plusGil(til_full);
+      gil_obtained -= til_full;
+    }
+    else {
+      current->plusGil(gil_obtained);
+      gil_obtained = 0;
+    }
+    current = current->previous();
+  }
 }
 
 //   _____                      _        
@@ -81,7 +98,6 @@ bool BaseBag::insertFirst(BaseItem *item){
 }
 
 string BaseBag::toString() const{
-  cout << "Gioi han: " << this->limit << "   "; //DEBUG
   string bag_info = "";
   bag_info += "Bag[count=" + to_string(this->count);
   BaseItem* current = head;
@@ -99,6 +115,13 @@ string BaseBag::toString() const{
 
 // PALADIN BAG
 bool PaladinBag::insertFirst(BaseItem *item) {return true;}
+
+// DRAGON BAG
+bool DragonBag::insertFirst(BaseItem *item){
+  if(item->itemType == ItemType::ANTIDOTE) return false;
+  if(this->count == this->limit) return false;
+  return true;
+}
 
 //  _____ _                     
 // |_   _| |                    
@@ -196,13 +219,23 @@ KnightType BaseKnight::getType() const {
   return this->knightType;
 }
 
+void BaseKnight::plusGil(const int gil_obtained){
+  this->gil += gil_obtained;
+}
+
+int BaseKnight::getGil() const{
+  return this->gil;
+}
+
 BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, int gil, int antidote){
+  // Classify Knights' Types
   KnightType type;
   if(isPrime(maxhp)) type = PALADIN;
   else if(maxhp == 888) type = LANCELOT;
   else if(PythagoreTri(maxhp/100,(maxhp/10)%10 , maxhp%10)) type = DRAGON;
   else type = NORMAL;
 
+  // Initiate Knights' Types
   BaseKnight* knight = nullptr;
     switch (type) {
     case PALADIN:
@@ -211,29 +244,21 @@ BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, i
       // DEBUG
       knight->bag = nullptr;
       knight->bag = new PaladinBag(phoenixdownI,antidote,0);
-      cout << "[PALADIN]---------  " ;
-      cout << knight->bag->toString();
-      cout << "  ---------" << endl;
       break;
     case LANCELOT:
       knight = new LancelotKnight(id, maxhp, level, phoenixdownI, gil, antidote);
 
       knight->bag = nullptr;
       knight->bag = new LancelotBag(phoenixdownI,antidote,16);
-      cout << "[LANCELOT]---------  " ;
-      cout << knight->bag->toString();
-      cout << "  ---------" << endl;
       break;
     case DRAGON:
       knight = new DragonKnight(id, maxhp, level, phoenixdownI, gil, antidote);
+      knight->bag = new LancelotBag(phoenixdownI,antidote,14);
       break;
     case NORMAL:
       knight = new NormalKnight(id, maxhp, level, phoenixdownI, gil, antidote);
       knight->bag = nullptr;
       knight->bag = new NormalBag(phoenixdownI,antidote,19);
-      cout << "[NORMAL]---------  " ;
-      cout << knight->bag->toString();
-      cout << "  ---------" << endl;
       break;
     }
   knight->knightType = type;
@@ -250,7 +275,7 @@ string BaseKnight::toString() const {
         + ",maxhp:" + to_string(maxhp)
         + ",level:" + to_string(level)
         + ",gil:" + to_string(gil)
-        + "," + "no bag yet sorry " /* bag->toString() */
+        + "," +   bag->toString() 
         + ",knight_type:" + typeString[knightType]
         + "]";
     return s;
@@ -266,15 +291,19 @@ string BaseKnight::toString() const {
 //                           |___/                   |___/             
 
 ArmyKnights::ArmyKnights(const string& file_armyknights){
+  // Getting those indexes
   ifstream army_file(file_armyknights);
   army_file >> this->numKnights;
   this->army = new BaseKnight*[numKnights];
   int maxhp,level,phoenixdownI,gil,antidote;
+
+  // Importing indexes + Create()
   for(int id =1; id <=numKnights;id++){
     army_file >> maxhp >> level >> phoenixdownI >> gil >> antidote;
     BaseKnight* knight = BaseKnight::create(id, maxhp, level, phoenixdownI, gil, antidote);
     army[id-1] = knight;
 
+    // !!!!!!!!!!!!!!!!!!!!!!!!! UPDATE LASTKNIGHT !!!!!!!!!!!!!!!!!!!!!!!!!
     if(id == 1) lastknight = knight;
     else{
       knight->setPrev(lastknight);
@@ -282,14 +311,8 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
     }
   }
 
-  //INDEV
+  //INDEV We're not done yet
   
-  BaseKnight* lmao = lastKnight();
-  while(lmao != nullptr){
-    cout << lmao->toString() << endl;
-    lmao = lmao->previous();
-  }
-
   army_file.close();
 }
 
@@ -303,9 +326,7 @@ bool ArmyKnights::hasGuinevereHair() const {return(this->GuinevereHair);}
 bool ArmyKnights::hasExcaliburSword() const {return(this->ExcaliburSword);}
 
 BaseKnight* ArmyKnights::lastKnight() const {
-  if (this->count()==0) return nullptr;
-  BaseKnight* knight_cuoi = this->army[this->count()-1];
-  return knight_cuoi;
+  return this->lastknight;
 }
 
 ArmyKnights::~ArmyKnights(){
@@ -318,13 +339,14 @@ ArmyKnights::~ArmyKnights(){
 //IN DEV
 void ArmyKnights::dev_printAll() const {
   // TEST ITEM
+  // transferGil(lastKnight(), 3000);
   PhoenixdownIV tear;
   cout << "Loai item: " << tear.itemType << "; ";
-  army[0]->takeDamage(200);
-  cout << "HP sau khi danh " << army[0]->getHP();
-  cout << "Dung tear cho thang dau dc ko: " << tear.canUse(army[0]) << endl;
-  if(tear.canUse(army[0])) tear.use(army[0]);
-  cout << "Mau sau khi dung la: " << army[0]->getHP() << endl;
+  lastKnight()->takeDamage(200);
+  cout << "HP sau khi danh " << lastKnight()->getHP() << endl;
+  cout << "Dung tear cho thang cuoi dc ko: " << tear.canUse(lastKnight()) << endl;
+  if(tear.canUse(lastKnight())) tear.use(lastKnight());
+  cout << "Mau sau khi dung la: " << lastKnight()->getHP() << endl;
   
   //TEST ARMY
   for(int i =0; i < this->numKnights;i++){
@@ -370,6 +392,11 @@ bool ArmyKnights::adventure(Events *event) {
           this->ExcaliburSword = true;
         break;
       }
+
+      case MeetDurianGarden:{
+        lastKnight()->healthRestore(lastKnight()->getMaxHP());
+        break;
+      }
     }
   }
   return false;
@@ -395,6 +422,7 @@ KnightAdventure::KnightAdventure() {
 
 void KnightAdventure::loadEvents(const string &file_events){
   this->events = new Events(file_events);
+
 }
 
 void KnightAdventure::loadArmyKnights(const string &file_armyknights){
@@ -409,11 +437,11 @@ void KnightAdventure::run(){
     cout << events->get(i) << " " ;
   }
   cout << endl;
-  this->armyKnights->dev_printAll();
+  armyKnights->adventure(events);
+  // this->armyKnights->dev_printAll();
   cout << endl;
   this->armyKnights->printInfo();
 
-  armyKnights->adventure(events);
 
   cout << endl << endl;
   // DEBUG

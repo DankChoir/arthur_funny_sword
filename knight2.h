@@ -2,7 +2,7 @@
 #define __KNIGHT2_H__
 
 #include "main.h"
-#include <bits/types/cookie_io_functions_t.h>
+// #include <bits/types/cookie_io_functions_t.h>
 
 // #define DEBUG
 
@@ -56,10 +56,8 @@ protected:
     int level;
     int gil;
     
-    // DEBUG
     int phoenixdownI;
     int antidote;
-    // DEBUG
     
     bool got_poisioned = false;
     BaseKnight* prev = nullptr;
@@ -75,15 +73,19 @@ public:
 
     int getHP() const;
     int getMaxHP() const;
+    void healthRestore(const int amount);
+    void heal(const int amount);
 
     bool poisioned() const;
     void cleanse();
-    void healthRestore(const int amount);
-    void heal(const int amount);
+
     void takeDamage(const int damage);
-    void setPrev(BaseKnight* knight);
+
+    int getGil() const;
+    void plusGil(const int gil_obtained);
     KnightType getType() const;
 
+    void setPrev(BaseKnight* knight);
     BaseKnight* previous() const;
 };
 
@@ -223,21 +225,24 @@ class BaseBag {
 
 class PaladinBag : public BaseBag{
   public:
-    // PaladinBag(const int phoenixdownI, const int antidote, const int limit):BaseBag(phoenixdownI,antidote ,limit){}
     using BaseBag::BaseBag;
     bool insertFirst(BaseItem *item) override;
 };
 
 class LancelotBag : public BaseBag{
   public:
-    // LancelotBag(const int phoenixdownI, const int antidote, const int limit):BaseBag(phoenixdownI, antidote, limit){}
     using BaseBag::BaseBag;
 };
 
 class NormalBag : public BaseBag{
   public:
-    // LancelotBag(const int phoenixdownI, const int antidote, const int limit):BaseBag(phoenixdownI, antidote, limit){}
     using BaseBag::BaseBag;
+};
+
+class DragonBag : public BaseBag{
+  public:
+    using BaseBag::BaseBag;
+    bool insertFirst(BaseItem* item) override;
 };
 
 //  _____                _       
