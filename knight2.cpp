@@ -30,6 +30,17 @@ void transferGil(BaseKnight* knight,int gil_obtained){
   }
 }
 
+void transferItem(BaseKnight* knight, BaseItem* item){
+  BaseKnight* current = knight;
+  while(current != nullptr){
+    if(current->bag->insertFirst(item)){
+      current->bag->topAppend(item);
+      return;
+    }
+    current = current->previous();
+  }
+}
+
 //   _____                      _        
 //  |  ___|                    | |       
 //  | |__  __   __  ___  _ __  | |_  ___ 
@@ -105,6 +116,7 @@ string BaseBag::toString() const{
     if (current->itemType == ItemType::ANTIDOTE) bag_info += ";Antidote";
     else if (current->itemType == ItemType::TEAR_I) bag_info += ";PhoenixI";
     else if (current->itemType == ItemType::TEAR_II) bag_info += ";PhoenixII";
+    else if (current->itemType == ItemType::TEAR_III) bag_info += ";PhoenixIII";
     else
     bag_info += ";PhoenixdownIV";
     current = current->next;
@@ -397,6 +409,25 @@ bool ArmyKnights::adventure(Events *event) {
         lastKnight()->healthRestore(lastKnight()->getMaxHP());
         break;
       }
+
+      case PickedUpPhoenixDown2:{
+        PhoenixdownII* tear_2 = new PhoenixdownII;
+        transferItem(this->lastKnight(), tear_2);
+        break;
+      }
+
+      case PickedUpPhoenixDown3:{
+        PhoenixdownIII* tear_3 = new PhoenixdownIII;
+        transferItem(this->lastKnight(), tear_3);
+        break;
+      }
+
+      case PickedUpPhoenixDown4:{
+        PhoenixdownIV* tear_4 = new PhoenixdownIV;
+        transferItem(this->lastKnight(), tear_4);
+        break;
+      }
+
     }
   }
   return false;
