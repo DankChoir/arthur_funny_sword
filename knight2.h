@@ -165,6 +165,8 @@ public:
     BaseItem() {next=nullptr;}
     virtual bool canUse ( BaseKnight * knight ) = 0;
     virtual void use ( BaseKnight * knight ) = 0;
+
+    virtual ~BaseItem(){};
 };
 
 class Antidote: public BaseItem {
@@ -216,6 +218,7 @@ class BaseBag {
     int limit;
   public:
     BaseBag(const int phoenixdownI, const int antidote, const int limit);
+    ~BaseBag();
     BaseItem* head;
     void topAppend(BaseItem* item);
     virtual bool insertFirst(BaseItem * item);

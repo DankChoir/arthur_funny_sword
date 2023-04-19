@@ -82,14 +82,15 @@ Events::~Events(){
 void BaseBag::topAppend(BaseItem *item){
   if(this->head == nullptr) {head = item;}
   else{
-      item->next = this->head;
-      this->head = item;
-    }
+    item->next = this->head;
+    this->head = item;
   }
+  this->count++;
+}
 
 BaseBag::BaseBag(const int phoenixdownI,const int antidote, const int limit){
   this->head = nullptr;
-  this->count += phoenixdownI + antidote;
+  // this->count += phoenixdownI + antidote;
   this->limit = limit; 
 
   for(int a = 0; a <phoenixdownI; a++){
@@ -123,6 +124,18 @@ string BaseBag::toString() const{
   }
   bag_info += "]";
   return bag_info;
+}
+
+BaseBag::~BaseBag(){
+  BaseItem* current = this->head;
+  BaseItem* next;
+
+  while(current != nullptr){
+    next = current->next;
+    delete current;
+    current  = next;
+  }
+  head = nullptr;
 }
 
 // PALADIN BAG
@@ -264,8 +277,8 @@ BaseKnight* BaseKnight::create(int id, int maxhp, int level, int phoenixdownI, i
       knight->bag = new LancelotBag(phoenixdownI,antidote,16);
       break;
     case DRAGON:
-      knight = new DragonKnight(id, maxhp, level, phoenixdownI, gil, antidote);
-      knight->bag = new LancelotBag(phoenixdownI,antidote,14);
+      knight = new DragonKnight(id, maxhp, level, phoenixdownI, gil, 0);
+      knight->bag = new DragonBag(phoenixdownI,0,14);
       break;
     case NORMAL:
       knight = new NormalKnight(id, maxhp, level, phoenixdownI, gil, antidote);
@@ -322,7 +335,6 @@ ArmyKnights::ArmyKnights(const string& file_armyknights){
       lastknight = knight;
     }
   }
-
   //INDEV We're not done yet
   
   army_file.close();
@@ -352,13 +364,13 @@ ArmyKnights::~ArmyKnights(){
 void ArmyKnights::dev_printAll() const {
   // TEST ITEM
   // transferGil(lastKnight(), 3000);
-  PhoenixdownIV tear;
-  cout << "Loai item: " << tear.itemType << "; ";
-  lastKnight()->takeDamage(200);
-  cout << "HP sau khi danh " << lastKnight()->getHP() << endl;
-  cout << "Dung tear cho thang cuoi dc ko: " << tear.canUse(lastKnight()) << endl;
-  if(tear.canUse(lastKnight())) tear.use(lastKnight());
-  cout << "Mau sau khi dung la: " << lastKnight()->getHP() << endl;
+  // PhoenixdownIV tear;
+  // cout << "Loai item: " << tear.itemType << "; ";
+  // lastKnight()->takeDamage(200);
+  // cout << "HP sau khi danh " << lastKnight()->getHP() << endl;
+  // cout << "Dung tear cho thang cuoi dc ko: " << tear.canUse(lastKnight()) << endl;
+  // if(tear.canUse(lastKnight())) tear.use(lastKnight());
+  // cout << "Mau sau khi dung la: " << lastKnight()->getHP() << endl;
   
   //TEST ARMY
   for(int i =0; i < this->numKnights;i++){
@@ -469,7 +481,7 @@ void KnightAdventure::run(){
   }
   cout << endl;
   armyKnights->adventure(events);
-  // this->armyKnights->dev_printAll();
+  this->armyKnights->dev_printAll();
   cout << endl;
   this->armyKnights->printInfo();
 
