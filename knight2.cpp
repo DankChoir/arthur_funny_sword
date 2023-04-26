@@ -109,6 +109,42 @@ bool BaseBag::insertFirst(BaseItem *item){
   return false;
 }
 
+BaseItem* BaseBag::get(ItemType itemType){
+  BaseItem* current = this->head;
+  while(current != nullptr){
+    if (current->itemType == itemType) return current;
+    current = current->next;
+  }
+  return nullptr;
+}
+
+void BaseBag::swapAndDel(BaseItem *target){
+  if(head == nullptr || target == nullptr) return;
+  if(head == target){
+    head = head->next;
+    delete target;
+    return;
+  }
+
+  BaseItem* prev = nullptr;
+  BaseItem* curr = head;
+
+  while (curr != nullptr && curr != target) {
+    prev = curr;
+    curr = curr->next;
+  }
+  if (curr == nullptr) return;
+
+  BaseItem* newHead = head->next;
+  head->next = curr->next;
+  prev->next = head;
+  this->head = newHead;
+
+  delete target;
+  this->count--;
+
+}
+
 string BaseBag::toString() const{
   string bag_info = "";
   bag_info += "Bag[count=" + to_string(this->count);
@@ -212,6 +248,12 @@ void Antidote::use(BaseKnight *knight){
 //  \____/  \__,_||___/ \___|\_| \_/|_| |_||_| \__, ||_| |_| \__|
 //                                              __/ |            
 //    
+int BaseKnight::getLevel() const{
+  return this->level;
+}
+void BaseKnight::levelUp(){
+  this->level++;
+}
 
 int BaseKnight::getHP() const {return this->hp;}
 int BaseKnight::getMaxHP() const {return this->maxhp;}
@@ -305,6 +347,26 @@ string BaseKnight::toString() const {
         + "]";
     return s;
 }
+//   _____                                
+//  |  ___|                               
+//  | |__   _ __    ___  _ __ ___   _   _ 
+//  |  __| | '_ \  / _ \| '_ ` _ \ | | | |
+//  | |___ | | | ||  __/| | | | | || |_| |
+//  \____/ |_| |_| \___||_| |_| |_| \__, |
+//                                   __/ |
+//                                  |___/
+
+BaseOpponent::BaseOpponent(int levelO){
+  this->levelO = levelO;
+}
+
+int BaseOpponent::ggil() const{
+  return this->gil;
+}
+
+void BaseOpponent::attack(BaseKnight *knight) const {
+  knight->takeDamage(baseDamage*(levelO- knight->getLevel()));
+}
 
 //    ___                           _   __        _         _          
 //   / _ \                         | | / /       (_)       | |         
@@ -362,6 +424,17 @@ ArmyKnights::~ArmyKnights(){
 
 //IN DEV
 void ArmyKnights::dev_printAll() const {
+  // PhoenixdownIV* tear_4= new PhoenixdownIV;
+  // this->lastKnight()->bag->topAppend(tear_4);
+  // int i =3;
+  // while(i--){
+  //   Antidote* anti = new Antidote;
+  //   this->lastKnight()->bag->topAppend(anti);
+  // }
+  //
+  // BaseItem* target = lastKnight()->bag->get(ItemType::TEAR_I);
+  // this->lastKnight()->bag->swapAndDel(target);
+  //
   // TEST ITEM
   // transferGil(lastKnight(), 3000);
   // PhoenixdownIV tear;
@@ -394,8 +467,12 @@ void ArmyKnights::printInfo() const {
 
 bool ArmyKnights::adventure(Events *event) {
   for(int i =0; i < event->count();i++){
-    int ma_su_kien = event->get(i);
-    switch (ma_su_kien) {
+    int eventID = event->get(i);
+    int level = this->lastknight->getLevel();
+    int levelO = (i+eventID)%10 + 1;
+    KnightType type = lastknight->getType();
+
+    switch (eventID) {
       case PickedUpPaladinsShield:{
         this->PalandinShield = true;
         break;
@@ -437,6 +514,20 @@ bool ArmyKnights::adventure(Events *event) {
       case PickedUpPhoenixDown4:{
         PhoenixdownIV* tear_4 = new PhoenixdownIV;
         transferItem(this->lastKnight(), tear_4);
+        break;
+      }
+
+      case MeetMadBear:{
+        MadBear* gau_dien = new MadBear(levelO);
+
+        if(level > levelO || type == LANCELOT || type == PALADIN) {
+          lastknight->levelUp();
+          transferGil(lastknight,gau_dien->ggil());
+        }
+        else
+          gau_dien->attack(lastknight);
+
+        delete gau_dien;
         break;
       }
 

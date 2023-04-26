@@ -2,7 +2,6 @@
 #define __KNIGHT2_H__
 
 #include "main.h"
-// #include <bits/types/cookie_io_functions_t.h>
 
 // #define DEBUG
 
@@ -38,7 +37,6 @@ class Events;
 class BaseOpponent;
 class BaseBag;
 
-
  // _   __      _       _     _   
 // | | / /     (_)     | |   | |  
 // | |/ / _ __  _  __ _| |__ | |_ 
@@ -70,6 +68,9 @@ public:
 
     static BaseKnight * create(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote);
     string toString() const;
+
+    int getLevel() const;
+    void levelUp();
 
     int getHP() const;
     int getMaxHP() const;
@@ -151,6 +152,70 @@ public:
     void printResult(bool win) const;
 };
 
+//   _____                                
+//  |  ___|                               
+//  | |__   _ __    ___  _ __ ___   _   _ 
+//  |  __| | '_ \  / _ \| '_ ` _ \ | | | |
+//  | |___ | | | ||  __/| | | | | || |_| |
+//  \____/ |_| |_| \___||_| |_| |_| \__, |
+//                                   __/ |
+//                                  |___/
+
+class BaseOpponent{
+protected:
+  int baseDamage;
+  int levelO;
+  int gil;
+public:
+  BaseOpponent(int levelO);
+  int ggil() const;
+  virtual void attack(BaseKnight* knight) const;
+};
+
+class MadBear: public BaseOpponent{
+  public:
+  MadBear(int levelO): BaseOpponent(levelO){
+    this->baseDamage =10;
+    this->gil = 100;
+  };
+};
+
+class Bandit: public BaseOpponent{
+  public:
+  Bandit(int levelO): BaseOpponent(levelO){
+    this->baseDamage =15;
+    this->gil = 150;
+  };
+};
+
+class LordLupin: public BaseOpponent{
+  public:
+  LordLupin(int levelO): BaseOpponent(levelO){
+    this->baseDamage =45;
+    this->gil = 450;
+  };
+};
+
+class Elf: public BaseOpponent{
+  public:
+  Elf(int levelO): BaseOpponent(levelO){
+    this->baseDamage =75;
+    this->gil = 750;
+  };
+};
+
+class Troll: public BaseOpponent{
+  public:
+  Troll(int levelO): BaseOpponent(levelO){
+    this->baseDamage =95;
+    this->gil = 800;
+  };
+};
+
+
+
+
+
 //  _____ _                     
 // |_   _| |                    
 //   | | | |_ ___ _ __ ___  ___ 
@@ -221,8 +286,9 @@ class BaseBag {
     ~BaseBag();
     BaseItem* head;
     void topAppend(BaseItem* item);
+    void swapAndDel(BaseItem* item);
     virtual bool insertFirst(BaseItem * item);
-    // virtual BaseItem * get(ItemType itemType);
+    virtual BaseItem * get(ItemType itemType);
     virtual string toString() const;
 };
 
