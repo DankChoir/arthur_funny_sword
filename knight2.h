@@ -5,7 +5,7 @@
 
 // #define DEBUG
 
-enum ItemType {ANTIDOTE, TEAR_I, TEAR_II, TEAR_III, TEAR_IV};
+enum ItemType {ANTIDOTE, TEAR_I, TEAR_II, TEAR_III, TEAR_IV, TEAR_ANY};
 
 enum EventCode {
     MeetMadBear = 1,
@@ -31,11 +31,14 @@ enum EventCode {
 
 enum KnightType { PALADIN = 0, LANCELOT, DRAGON, NORMAL };
 
+enum EnemyType {MADBEAR = 1, BANDIT, LORDLUPIN, ELF, TROLL, TORNBERY, QUEENOFCARDS, NINADERINGS, OMEGAWEAPON, HADES};
+
 // PROTOTYPES
 class BaseItem;
 class Events;
 class BaseOpponent;
 class BaseBag;
+class Ultimecia;
 
  // _   __      _       _     _   
 // | | / /     (_)     | |   | |  
@@ -48,46 +51,59 @@ class BaseBag;
 //
 class BaseKnight {
 protected:
-    int id;
-    int hp;
-    int maxhp;
-    int level;
-    int gil;
-    
-    int phoenixdownI;
-    int antidote;
-    
-    bool got_poisioned = false;
-    BaseKnight* prev = nullptr;
-    KnightType knightType;
+  int id;
+  int hp;
+  int maxhp;
+  int level;
+  int gil;
+  
+  int phoenixdownI;
+  int antidote;
+
+  float baseDamage;
+  
+  bool isPoisioned = false;
+  BaseKnight* prev = nullptr;
+  KnightType knightType;
 
 public:
-    BaseBag * bag;
-    BaseKnight(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote) : 
-    id(id), maxhp(maxhp), level(level),phoenixdownI(phoenixdownI) ,gil(gil), bag(nullptr), antidote(antidote) {};
+  BaseBag * bag;
+  BaseKnight(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote) : 
+  id(id), maxhp(maxhp), level(level),phoenixdownI(phoenixdownI) ,gil(gil), bag(nullptr), antidote(antidote) {};
 
-    static BaseKnight * create(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote);
-    string toString() const;
+  static BaseKnight * create(int id, int maxhp, int level, int phoenixdownI,int gil, int antidote);
+  string toString() const;
 
-    int getLevel() const;
-    void levelUp();
+  int getLevel() const;
+  void levelUp(const int& levelPlus);
 
-    int getHP() const;
-    int getMaxHP() const;
-    void healthRestore(const int amount);
-    void heal(const int amount);
+  int getHP() const;
+  int getMaxHP() const;
+  void healthRestore(const int& amount);
+  void heal(const int& amount);
+  bool isDead() const;
+  
+  void gotPosioned();
+  bool poisioned() const;
+  void poisionEffect();
+  void cleanse();
 
-    bool poisioned() const;
-    void cleanse();
+  void takeDamage(const int& damage);
 
-    void takeDamage(const int damage);
+  int getGil() const;
+  void updateGil(const int& gil_obtained);
+  void gilHalved();
+  KnightType getType() const;
 
-    int getGil() const;
-    void plusGil(const int gil_obtained);
-    KnightType getType() const;
+  void setPrev(BaseKnight* knight);
+  BaseKnight* previous() const;
 
-    void setPrev(BaseKnight* knight);
-    BaseKnight* previous() const;
+  virtual bool fight(BaseOpponent* opponent);
+  bool lazarus();
+  bool aloPhuongHoang() const;
+  void uses(BaseItem* item);
+
+  void attackUltimecia(Ultimecia* bossCuoi) const;
 };
 
 class PaladinKnight: public BaseKnight {
@@ -95,7 +111,9 @@ class PaladinKnight: public BaseKnight {
     PaladinKnight(int id,int maxhp, int level,int phoenixdownI,int gil,int antidote):BaseKnight(id, maxhp,level,phoenixdownI,gil, antidote){
       this->hp = maxhp;
       this->knightType = KnightType::PALADIN;
-    }
+      this->baseDamage = 0.06;
+  }
+    bool fight(BaseOpponent* opponent) override;
 };
 
 class LancelotKnight: public BaseKnight {
@@ -103,7 +121,9 @@ class LancelotKnight: public BaseKnight {
     LancelotKnight(int id,int maxhp, int level,int phoenixdownI,int gil,int antidote):BaseKnight(id, maxhp,level,phoenixdownI,gil, antidote){
       this->hp = maxhp;
       this->knightType = KnightType::LANCELOT;
+      this->baseDamage = 0.05;
     }
+    bool fight(BaseOpponent* opponent) override;
 };
 
 class DragonKnight: public BaseKnight {
@@ -111,7 +131,9 @@ class DragonKnight: public BaseKnight {
     DragonKnight(int id,int maxhp, int level,int phoenixdownI,int gil,int antidote):BaseKnight(id, maxhp,level,phoenixdownI, gil, antidote){
       this->hp = maxhp;
       this->knightType = KnightType::DRAGON;
+      this->baseDamage = 0.075;
     }
+    bool fight(BaseOpponent* opponent) override;
 };
 
 class NormalKnight: public BaseKnight {
@@ -133,6 +155,9 @@ private:
   bool GuinevereHair = false;
   bool ExcaliburSword = false;
 
+  bool metOmega = false;
+  bool metHades = false;
+
 public:
     ArmyKnights (const string & file_armyknights); // MAMA
     ~ArmyKnights();
@@ -147,7 +172,8 @@ public:
     bool hasLancelotSpear() const; //OK
     bool hasGuinevereHair() const; //OK
     bool hasExcaliburSword() const; //OK
-
+    
+    BaseKnight* updateLastKnight();
     void printInfo() const;
     void printResult(bool win) const;
 };
@@ -166,10 +192,18 @@ protected:
   int baseDamage;
   int levelO;
   int gil;
+  EnemyType type;
 public:
   BaseOpponent(int levelO);
-  int ggil() const;
+
+  int getGil() const;
+  int getLevelO()const;
+  EnemyType getType() const;
+
   virtual void attack(BaseKnight* knight) const;
+  virtual void trade(BaseKnight* knight) const {};
+
+  virtual ~BaseOpponent() {};
 };
 
 class MadBear: public BaseOpponent{
@@ -177,6 +211,7 @@ class MadBear: public BaseOpponent{
   MadBear(int levelO): BaseOpponent(levelO){
     this->baseDamage =10;
     this->gil = 100;
+    this->type = EnemyType::MADBEAR;
   };
 };
 
@@ -185,6 +220,7 @@ class Bandit: public BaseOpponent{
   Bandit(int levelO): BaseOpponent(levelO){
     this->baseDamage =15;
     this->gil = 150;
+    this->type = EnemyType::BANDIT;
   };
 };
 
@@ -193,6 +229,7 @@ class LordLupin: public BaseOpponent{
   LordLupin(int levelO): BaseOpponent(levelO){
     this->baseDamage =45;
     this->gil = 450;
+    this->type = EnemyType::LORDLUPIN;
   };
 };
 
@@ -201,6 +238,7 @@ class Elf: public BaseOpponent{
   Elf(int levelO): BaseOpponent(levelO){
     this->baseDamage =75;
     this->gil = 750;
+    this->type = EnemyType::ELF;
   };
 };
 
@@ -209,10 +247,65 @@ class Troll: public BaseOpponent{
   Troll(int levelO): BaseOpponent(levelO){
     this->baseDamage =95;
     this->gil = 800;
+    this->type = EnemyType::TROLL;
   };
 };
 
+class Tornbery: public BaseOpponent{
+  public:
+  Tornbery(int levelO): BaseOpponent(levelO){
+    this->type = EnemyType::TORNBERY;
+  };
+  void attack(BaseKnight* knight) const override;
+};
 
+class QoC: public BaseOpponent{
+  public:
+  QoC(int levelO): BaseOpponent(levelO){
+    this->type = EnemyType::QUEENOFCARDS;
+  };
+  void attack(BaseKnight* knight) const override;
+};
+
+class Nina: public BaseOpponent{
+  public:
+  Nina(int levelO): BaseOpponent(levelO){
+    this->type = EnemyType::NINADERINGS;
+  };
+  using BaseOpponent::trade;
+  void trade(BaseKnight* knight) const override;
+};
+
+class OmegaWeapon: public BaseOpponent{
+  public:
+  OmegaWeapon(int levelO): BaseOpponent(levelO){
+    this->type = EnemyType::OMEGAWEAPON;
+  };
+  void attack(BaseKnight* knight) const override;
+};
+
+class Hades: public BaseOpponent{
+  public:
+  Hades(int levelO): BaseOpponent(levelO){
+    this->type = EnemyType::HADES;
+  };
+  void attack(BaseKnight* knight) const override;
+};
+
+
+// ZA BOSS
+class Ultimecia{
+private:
+  int health;
+public:
+  Ultimecia(){
+    this->health = 5000;
+  }
+
+  bool isDefeated() const;
+  void annihilate(BaseKnight* knight) const; // knight just cant
+  void takeDamage(const int& damage);
+};
 
 
 
@@ -281,12 +374,17 @@ class BaseBag {
   protected:
     int count=0;
     int limit;
+    BaseKnight* knight;
   public:
-    BaseBag(const int phoenixdownI, const int antidote, const int limit);
+    BaseBag(BaseKnight* knight, int phoenixdownI, const int antidote, const int limit);
     ~BaseBag();
     BaseItem* head;
+
     void topAppend(BaseItem* item);
     void swapAndDel(BaseItem* item);
+    void drop();
+    BaseKnight* owner() const;
+
     virtual bool insertFirst(BaseItem * item);
     virtual BaseItem * get(ItemType itemType);
     virtual string toString() const;
