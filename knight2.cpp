@@ -850,29 +850,27 @@ bool ArmyKnights::adventure(Events *event) {
       case MeetMadBear:{ //adjust
         MadBear* gau_dien = new MadBear(levelO);
 
-        while(true){
-          if(curKnight == nullptr) return false;
-          // if(curKnight->getLevel() == levelO) break;
+        if(curKnight == nullptr) return false;
+        // if(curKnight->getLevel() == levelO) break;
 
-          // COMBAT
-          int initialHp = curKnight->getHP();
-          bool knightSurvive = curKnight->fight(gau_dien);
-          int afterHp = curKnight->getHP();
-          bleed = initialHp > afterHp;
+        // COMBAT
+        int initialHp = curKnight->getHP();
+        bool knightSurvive = curKnight->fight(gau_dien);
+        int afterHp = curKnight->getHP();
+        bleed = initialHp > afterHp;
 
-          // IN CASE SURVIVE
-          if(knightSurvive) break;
-          
-          // IN CASE DEAD
-          bool canRevive = curKnight->lazarus();
-          if (canRevive == false){
-            curKnight = updateLastKnight();
-            continue;
-          }
-
+        // IN CASE SURVIVE
+        if(knightSurvive) break;
+        
+        // IN CASE DEAD
+        bool canRevive = curKnight->lazarus();
+        if (canRevive == false){
+          curKnight = updateLastKnight();
           break;
-      
         }
+
+        break;
+      
 
         delete gau_dien;
         break;
@@ -880,7 +878,6 @@ bool ArmyKnights::adventure(Events *event) {
 
       case MeetBandit:{ //adjust
         Bandit* trom = new Bandit(levelO);
-        while(true){
           if(curKnight == nullptr) return false;
           // if(curKnight->getLevel() == levelO) break;
 
@@ -897,13 +894,12 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
-            continue;
+            break;
           }
 
           // REVIVED
           bleed = false;
           break;
-        }
 
 
         delete trom;
@@ -912,7 +908,6 @@ bool ArmyKnights::adventure(Events *event) {
 
       case MeetLordLupin:{ //adjust
         LordLupin* lupin = new LordLupin(levelO);
-        while(true){
           if(curKnight == nullptr) return false;
           // if(curKnight->getLevel() == levelO) break;
 
@@ -929,13 +924,12 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
-            continue;
+            break;
           }
 
           // REVIVED
           bleed = false;
           break;
-        }
 
         delete lupin;
         break;
@@ -943,7 +937,6 @@ bool ArmyKnights::adventure(Events *event) {
 
       case MeetElf:{ //adjust
         Elf* eo = new Elf(levelO);
-        while(true){
           if(curKnight == nullptr) return false;
           // if(curKnight->getLevel() == levelO) break;
 
@@ -960,13 +953,12 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
-            continue;
+            break;
           }
 
           // REVIVED
           bleed = false;
           break;
-        }
 
         delete eo;
         break;
@@ -974,7 +966,6 @@ bool ArmyKnights::adventure(Events *event) {
 
       case MeetTroll:{ //adjust
         Troll* tronlay = new Troll(levelO);
-        while(true){
           if(curKnight == nullptr) return false;
           // if(curKnight->getLevel() == levelO) break;
 
@@ -991,13 +982,12 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
-            continue;
+            break;
           }
 
           // REVIVED
           bleed = false;
           break;
-        }
 
         delete tronlay;
         break;
@@ -1005,7 +995,6 @@ bool ArmyKnights::adventure(Events *event) {
 
       case MeetTornbery:{ //adjust
         Tornbery* ghost = new Tornbery(levelO);
-        while(true){
           if(curKnight == nullptr) return false;
           // if(curKnight->getLevel() == levelO) break;
 
@@ -1022,13 +1011,12 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
-            continue;
+            break;
           }
 
           // REVIVED
           bleed = false;
           break;
-        }
 
         delete ghost;
         break;
@@ -1097,7 +1085,6 @@ bool ArmyKnights::adventure(Events *event) {
       case MeetHades:{ //adjust
         if(metHades) break;
         Hades* tuThan = new Hades(levelO);
-        while(true){
           if(curKnight == nullptr) return false;
 
           // COMBAT
@@ -1120,13 +1107,12 @@ bool ArmyKnights::adventure(Events *event) {
           if(curKnight->getLevel() == levelO) break;
           if (canRevive == false){
             curKnight = updateLastKnight();
-            continue;
+            break;
           }
 
           // REVIVED
           bleed = false;
           break;
-        }
 
         delete tuThan;
         break;
