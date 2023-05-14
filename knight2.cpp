@@ -475,7 +475,7 @@ bool BaseKnight::fight(BaseOpponent *opponent){ //FOR normal knight only - OMEGA
 bool PaladinKnight::fight(BaseOpponent *opponent){
   int _level = this->getLevel();
   int _levelO = opponent->getLevelO();
-  bool outLevel = _level > _levelO;
+  bool outLevel = _level >= _levelO;
   EnemyType kieu = opponent->getType();
 
   if (kieu == EnemyType::OMEGAWEAPON){
@@ -756,6 +756,8 @@ BaseKnight* ArmyKnights::updateLastKnight(){
   BaseKnight* newLast = lastknight->previous();
   this->numKnights--;
   delete oldLast;
+  
+  if(newLast == nullptr) return nullptr;
   return newLast;
 }
 
@@ -797,6 +799,7 @@ bool ArmyKnights::adventure(Events *event) {
     int eventID = event->get(i);
     int level = this->lastknight->getLevel();
     int levelO = (i+eventID)%10 + 1;
+
 
     bool bleed = false;
     KnightType type = lastknight->getType();
@@ -850,9 +853,6 @@ bool ArmyKnights::adventure(Events *event) {
       case MeetMadBear:{ //adjust
         MadBear* gau_dien = new MadBear(levelO);
 
-        if(curKnight == nullptr) return false;
-        // if(curKnight->getLevel() == levelO) break;
-
         // COMBAT
         int initialHp = curKnight->getHP();
         bool knightSurvive = curKnight->fight(gau_dien);
@@ -861,16 +861,17 @@ bool ArmyKnights::adventure(Events *event) {
 
         // IN CASE SURVIVE
         if(knightSurvive) break;
-        
+		
         // IN CASE DEAD
         bool canRevive = curKnight->lazarus();
         if (canRevive == false){
           curKnight = updateLastKnight();
+		  if(curKnight == nullptr) {printInfo();return false;}
           break;
         }
 
+        bleed = false;
         break;
-      
 
         delete gau_dien;
         break;
@@ -894,6 +895,7 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
+			if(curKnight == nullptr) {printInfo();return false;}
             break;
           }
 
@@ -924,6 +926,7 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
+			if(curKnight == nullptr) {printInfo();return false;}
             break;
           }
 
@@ -953,6 +956,7 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
+			if(curKnight == nullptr) {printInfo();return false;}
             break;
           }
 
@@ -982,6 +986,7 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
+			if(curKnight == nullptr) {printInfo();return false;}
             break;
           }
 
@@ -1011,6 +1016,7 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
+			if(curKnight == nullptr) {printInfo();return false;}
             break;
           }
 
@@ -1070,6 +1076,7 @@ bool ArmyKnights::adventure(Events *event) {
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
+			if(curKnight == nullptr) {printInfo();return false;}
             continue;
           }
 
@@ -1107,6 +1114,7 @@ bool ArmyKnights::adventure(Events *event) {
           if(curKnight->getLevel() == levelO) break;
           if (canRevive == false){
             curKnight = updateLastKnight();
+			if(curKnight == nullptr) {printInfo();return false;}
             break;
           }
 

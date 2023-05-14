@@ -14,7 +14,7 @@ int main(int argc, char ** argv) {
         cout << "Error number of arguments" << endl;
         exit(1);
     }
-    
+
     // BEBGIN
     KnightAdventure * knightAdventure = new KnightAdventure();
     knightAdventure->loadArmyKnights(file_armyknights);
