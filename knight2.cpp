@@ -751,14 +751,24 @@ bool ArmyKnights::hasLancelotSpear() const {return(this->LancelotSpear);}
 bool ArmyKnights::hasGuinevereHair() const {return(this->GuinevereHair);}
 bool ArmyKnights::hasExcaliburSword() const {return(this->ExcaliburSword);}
 
-BaseKnight* ArmyKnights::updateLastKnight(){
+BaseKnight* ArmyKnights::updateLastKnight() {
+  if (lastknight == nullptr) {
+    return nullptr;
+  }
+
   BaseKnight* oldLast = lastknight;
   BaseKnight* newLast = lastknight->previous();
   this->numKnights--;
-  delete oldLast;
   
-  if(newLast == nullptr) return nullptr;
-  return newLast;
+  if (newLast == nullptr) {
+    lastknight = nullptr;  // Update the lastknight pointer to nullptr
+  } else {
+    newLast->previous() == nullptr;  // Update the next pointer of the new last knight to nullptr
+    lastknight = newLast;  // Update the lastknight pointer to the new last knight
+  }
+
+  delete oldLast;
+  return lastknight;
 }
 
 BaseKnight* ArmyKnights::lastKnight() const {
@@ -1152,6 +1162,7 @@ bool ArmyKnights::adventure(Events *event) {
           curKnight = updateLastKnight();
         }
 
+		curKnight = nullptr;
         printInfo();
         return false;
       }
