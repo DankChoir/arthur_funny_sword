@@ -344,13 +344,14 @@ bool BaseKnight::aloPhuongHoang() const{
 bool BaseKnight::lazarus() {
   BaseItem* any_tear = bag->get(ItemType::TEAR_ANY);
 
-  if(any_tear){
-    uses(any_tear);
-
-    if(hp <= 0) return false; // SPECIAL CASE WITH HP BEING 1
-    return true;
-  }
-  else if(aloPhuongHoang()){
+  if(any_tear)
+	uses(any_tear);
+  
+  // Tear used
+  if(hp > 0) return true; 
+  // No tear OR Tear had funni moment with HP
+  
+  if(aloPhuongHoang()){
     this->updateGil(-100);
     this->healthRestore(maxhp/2);
     return true;
@@ -700,6 +701,7 @@ void Ultimecia::annihilate(BaseKnight *knight) const{
 
 void Ultimecia::takeDamage(const int &damage){
   this->health -= damage;
+  //cout << "Health Remaining: "<< this->health << endl;
 }
 
 //    ___                           _   __        _         _          
@@ -763,7 +765,6 @@ BaseKnight* ArmyKnights::updateLastKnight() {
   if (newLast == nullptr) {
     lastknight = nullptr;  // Update the lastknight pointer to nullptr
   } else {
-    newLast->previous() == nullptr;  // Update the next pointer of the new last knight to nullptr
     lastknight = newLast;  // Update the lastknight pointer to the new last knight
   }
 
