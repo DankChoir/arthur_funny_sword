@@ -155,8 +155,8 @@ private:
   bool GuinevereHair = false;
   bool ExcaliburSword = false;
 
-  bool metOmega = false;
-  bool metHades = false;
+  bool beatedOmega = false;
+  bool beatedHades = false;
 
 public:
     ArmyKnights (const string & file_armyknights); // MAMA
@@ -319,8 +319,8 @@ public:
 class BaseItem {
 public:
     ItemType itemType;
-    BaseItem* next;
-    BaseItem() {next=nullptr;}
+    BaseItem* next = nullptr;
+    BaseItem() {}
     virtual bool canUse ( BaseKnight * knight ) = 0;
     virtual void use ( BaseKnight * knight ) = 0;
 
@@ -378,7 +378,7 @@ class BaseBag {
   public:
     BaseBag(BaseKnight* knight, int phoenixdownI, const int antidote, const int limit);
     ~BaseBag();
-    BaseItem* head;
+    BaseItem* head = nullptr;
 
     void topAppend(BaseItem* item);
     void swapAndDel(BaseItem* item);

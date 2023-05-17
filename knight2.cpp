@@ -161,10 +161,16 @@ void BaseBag::swapAndDel(BaseItem *target){
   }
   if (curr == nullptr) return;
 
-  BaseItem* newHead = head->next;
-  head->next = curr->next;
-  prev->next = head;
-  this->head = newHead;
+  if(prev == head){
+    prev->next = nullptr;
+  }
+
+  else{
+    BaseItem* newHead = head->next;
+    head->next = curr->next;
+    prev->next = head;
+    this->head = newHead;
+  }
 
   delete target;
   this->count--; //IMPORTANT
@@ -180,7 +186,7 @@ string BaseBag::toString() const{
     else if (current->itemType == ItemType::TEAR_II) bag_info += "PhoenixII";
     else if (current->itemType == ItemType::TEAR_III) bag_info += "PhoenixIII";
     else
-    bag_info += "PhoenixdownIV";
+    bag_info += "PhoenixIV";
     current = current->next;
     if(current!=nullptr) bag_info+=",";
   }
@@ -338,7 +344,7 @@ void BaseKnight::uses(BaseItem *item){
 }
 
 bool BaseKnight::aloPhuongHoang() const{
-  return (this->getGil()>100);
+  return (this->getGil()>=100);
 }
 
 bool BaseKnight::lazarus() {
@@ -811,11 +817,9 @@ bool ArmyKnights::adventure(Events *event) {
     int level = this->lastknight->getLevel();
     int levelO = (i+eventID)%10 + 1;
 
-
     bool bleed = false;
     KnightType type = lastknight->getType();
     BaseKnight* curKnight = lastknight;
-
     switch (eventID) {
       case PickedUpPaladinsShield:{
         this->PalandinShield = true;
@@ -901,12 +905,12 @@ bool ArmyKnights::adventure(Events *event) {
 
           // IN CASE SURVIVE
           if(knightSurvive) break;
-          
+
           // IN CASE DEAD
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
-			if(curKnight == nullptr) {printInfo();return false;}
+            if(curKnight == nullptr) {printInfo();return false;}
             break;
           }
 
@@ -959,7 +963,7 @@ bool ArmyKnights::adventure(Events *event) {
           bool knightSurvive = curKnight->fight(eo);
           int afterHp = curKnight->getHP();
           bleed = initialHp > afterHp;
-
+          
           // IN CASE SURVIVE
           if(knightSurvive) break;
           
@@ -1065,43 +1069,44 @@ bool ArmyKnights::adventure(Events *event) {
 
       case MeetOmegaWeapon:{ //adjust
         // CHECK IF MET
-        if(metOmega) break;
+        if(beatedOmega) break;
 
         OmegaWeapon* vuKhiToiThuong = new OmegaWeapon(levelO);
-        while(true){
           if(curKnight == nullptr) return false;
 
           // COMBAT
           int initialHp = curKnight->getHP();
 
           bool knightSurvive = curKnight->fight(vuKhiToiThuong);
-          metOmega = true;
 
           int afterHp = curKnight->getHP();
           bleed = initialHp > afterHp;
 
+
           // IN CASE SURVIVE
-          if(knightSurvive) break;
+          if(knightSurvive) {
+            beatedOmega = true;
+            break;
+          }
           
           // IN CASE DEAD
           bool canRevive = curKnight->lazarus();
           if (canRevive == false){
             curKnight = updateLastKnight();
 			if(curKnight == nullptr) {printInfo();return false;}
-            continue;
+            break;
           }
 
           // REVIVED
           bleed = false;
           break;
-        }
 
         delete vuKhiToiThuong;
         break;
       }
 
       case MeetHades:{ //adjust
-        if(metHades) break;
+        if(beatedHades) break;
         Hades* tuThan = new Hades(levelO);
           if(curKnight == nullptr) return false;
 
@@ -1109,7 +1114,6 @@ bool ArmyKnights::adventure(Events *event) {
           int initialHp = curKnight->getHP();
 
           bool knightSurvive = curKnight->fight(tuThan);
-          metHades = true;
 
           int afterHp = curKnight->getHP();
           bleed = initialHp > afterHp;
@@ -1117,6 +1121,7 @@ bool ArmyKnights::adventure(Events *event) {
           // IN CASE SURVIVE
           if(knightSurvive){
             this->PalandinShield = true;
+            beatedHades = true;
             break;
           }
           
@@ -1168,7 +1173,7 @@ bool ArmyKnights::adventure(Events *event) {
         return false;
       }
     }
-    
+
     // DA CHILL HEAL
     if(bleed){
       BaseItem* any_tear = curKnight->bag->get(ItemType::TEAR_ANY);
@@ -1214,8 +1219,6 @@ void KnightAdventure::run(){
   bool result = armyKnights->adventure(events);
   this->armyKnights->printResult(result);
 
-
-  cout << endl << endl;
   // DEBUG
 }
 
